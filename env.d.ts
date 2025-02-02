@@ -1,5 +1,5 @@
-export namespace NodeJS {
-    interface ProcessEnv {
-      MONGO_URL: string;
-    }
+declare namespace NodeJS {
+  export interface ProcessEnv {
+    MONGO_URL: string;
+  }
 }

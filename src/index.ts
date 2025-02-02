@@ -4,9 +4,9 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
-// import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv'
 
-// dotenv.config();
+dotenv.config();
 
 const app = express();
 
@@ -24,4 +24,4 @@ server.listen(8080, () => {
   console.log('Server running on http://localhost:8080/');
 })
 
-const mongo_url = process.env.
+const mongo_url = process.env.MONGO_URL
