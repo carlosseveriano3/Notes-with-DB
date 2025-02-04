@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -21,6 +21,10 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
+app.use((req: Request, res: Response) => {
+  res.send("Hello World")
+})
+
 server.listen(8080, () => {
   console.log('Server running on http://localhost:8080/');
 })
@@ -28,5 +32,5 @@ server.listen(8080, () => {
 const MONGO_URL = process.env.MONGO_URL
 
 mongoose.Promise = Promise;
-mongoose.connect(MONGO_URL)
+mongoose.connect(MONGO_URL);
 mongoose.connection.on('error', (error: Error) => console.log(error));
