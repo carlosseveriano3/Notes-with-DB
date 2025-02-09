@@ -6,6 +6,8 @@
     "outDir": "dist",
     "sourceMap": true,
     "noImplicitAny": true,
+    "strict": true,
+    "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["src/**/*", "./*.d.ts"],

@@ -8,7 +8,7 @@ import cors from 'cors';
 
 import * as dotenv from 'dotenv'
 import mongoose from 'mongoose';
-import router from './router';
+import router from './router/routes';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
-app.use('/', router());
+app.use('/', router);
 
 // app.use((req: Request, res: Response) => {
 //   res.send("Hello World")
