@@ -18,7 +18,8 @@ export const note = async (req: Request, res: Response) => {
     })
 
     //REDIS
-
+    console.log(note)
+    console.log(header)
     res.status(200).json(note);
   } catch (error) {
     console.log(error);
