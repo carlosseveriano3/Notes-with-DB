@@ -1,7 +1,7 @@
 import express from 'express';
-import createNote from './createNote';
+import Notes from './Notes';
 const router = express.Router();
 
-createNote(router);
+Notes(router);
 
 export default router;

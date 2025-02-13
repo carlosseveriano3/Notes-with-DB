@@ -8,7 +8,7 @@ import cors from 'cors';
 
 import * as dotenv from 'dotenv'
 import mongoose from 'mongoose';
-import router from './router/routes';
+import router from './routes/routes';
 
 dotenv.config();
 
@@ -25,10 +25,6 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 app.use('/', router);
-
-// app.use((req: Request, res: Response) => {
-//   res.send("Hello World")
-// })
 
 server.listen(8080, () => {
   console.log('Server running on http://localhost:8080/');

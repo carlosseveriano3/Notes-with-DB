@@ -6,5 +6,3 @@ redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
 // Connect to Redis
 export { redisClient }
-
-//await redisClient.connect();
