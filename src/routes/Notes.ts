@@ -4,4 +4,5 @@ import { note } from "../controllers/notesController";
 
 export default (router: express.Router) => {
   router.post('/create-note', note);
+  router.get('notes/:id', )
 };

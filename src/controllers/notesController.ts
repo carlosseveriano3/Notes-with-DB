@@ -8,7 +8,7 @@ export const note = async (req: Request, res: Response) => {
     const { title, body } = req.body
     const header = req.headers["header"] as string | undefined;
 
-    enqueue('We got the message')
+    // enqueue('We got the message')
 
     if (!header) {
       res.status(400).json({error: 'Header is required'});
@@ -37,3 +37,12 @@ export const note = async (req: Request, res: Response) => {
     res.sendStatus(400);
   }
 };
+
+export const getNote = async (req: Request, res: Response) => {
+  try {
+    
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(400);
+  }
+}

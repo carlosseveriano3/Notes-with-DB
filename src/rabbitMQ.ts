@@ -1,8 +1,8 @@
-import client, { Connection } from 'amqplib'
+import client, { Connection, Message } from 'amqplib'
 
-const queue = 'message'
+// const queue = 'message'
 
-export const enqueue = async (message: any) => {
+export const enqueue = async (queue: string, message: string) => {
   const connection = await client.connect("amqp://localhost:5672");
   const channel = await connection.createChannel();
   await channel.assertQueue(queue, { durable: false });
@@ -12,20 +12,19 @@ export const enqueue = async (message: any) => {
   setTimeout(() => {
     channel.close();
     connection.close();
-    dequeue()
   }, 1000);
 };
 
-const dequeue = async () => {
+export const dequeue = async (queue: string) => {
   const connection = await client.connect("amqp://localhost:5672");
   const channel = await connection.createChannel();
   await channel.assertQueue(queue, { durable: false });
   console.log("Waiting for messages in queue...");
 
-  channel.consume(queue, (message) => {
+  channel.consume(queue, (message: Message) => {
     if (message) {
       console.log(`Received: ${message.content.toString()}`);
-      channel.ack(message)
+      channel.ack(message)    
     }
   })
 
