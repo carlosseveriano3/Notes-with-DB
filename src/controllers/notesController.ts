@@ -1,14 +1,16 @@
 import { Request, Response } from 'express';
 import { createNote } from '../db/notes'
 import { redisClient } from '../redisClient'
-import { enqueue } from '../rabbitMQ'
+import { receive } from '../rabbitMQ'
 
 export const note = async (req: Request, res: Response) => {
    try {
     const { title, body } = req.body
     const header = req.headers["header"] as string | undefined;
 
-    // enqueue('We got the message')
+    receive()
+
+    // receive('fila','We got the message')
 
     if (!header) {
       res.status(400).json({error: 'Header is required'});

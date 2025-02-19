@@ -1,25 +1,31 @@
-import client, { Connection, Message } from 'amqplib'
+import client, { Connection, Message, Channel } from 'amqplib'
 
 // const queue = 'message'
 
-export const enqueue = async (queue: string, message: string) => {
+export const send = async (queue: string, message: any) => {
   const connection = await client.connect("amqp://localhost:5672");
   const channel = await connection.createChannel();
   await channel.assertQueue(queue, { durable: false });
   channel.sendToQueue(queue, Buffer.from(message));
   console.log('message sent');
 
-  setTimeout(() => {
+   setTimeout(() => {
     channel.close();
     connection.close();
   }, 1000);
-};
+}
 
-export const dequeue = async (queue: string) => {
+let queue
+
+export const receive = async () => {
   const connection = await client.connect("amqp://localhost:5672");
   const channel = await connection.createChannel();
-  await channel.assertQueue(queue, { durable: false });
-  console.log("Waiting for messages in queue...");
+  const createNote = await channel.assertQueue('create-note', { durable: false });
+  const createNoteResult = await channel.assertQueue('create-note-result', { durable: false });
+  console.log(createNote);
+  console.log(createNoteResult);
+
+  
 
   channel.consume(queue, (message: Message) => {
     if (message) {
@@ -33,11 +39,3 @@ export const dequeue = async (queue: string) => {
     connection.close();
   }, 1000);
 };
-
-
-// amqp.connect("amqp://localhost:5672", (error: Error, connection: Connection) => {
-//   if (error) {
-//     throw error;
-//   }
-  
-// })
