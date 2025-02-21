@@ -10,6 +10,9 @@ import * as dotenv from 'dotenv'
 import mongoose from 'mongoose';
 import router from './routes/routes';
 
+import NotesController from './controllers/notesController';
+const notesController = new NotesController
+
 dotenv.config();
 
 const app = express();
@@ -25,6 +28,12 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 app.use('/', router);
+
+async function run() {
+  await notesController.createNote();
+}
+
+run();
 
 server.listen(8080, () => {
   console.log('Server running on http://localhost:8080/');

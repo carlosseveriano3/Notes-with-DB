@@ -1,8 +1,9 @@
 import express from "express";
 
-import { note } from "../controllers/notesController";
+import NotesController from "../controllers/notesController";
+const notesController = new NotesController
 
 export default (router: express.Router) => {
-  router.post('/create-note', note);
+  router.post('/create-note', notesController.createNote);
   router.get('notes/:id', )
 };
