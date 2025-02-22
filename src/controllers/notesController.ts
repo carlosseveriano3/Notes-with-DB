@@ -72,7 +72,8 @@ export default class NotesController {
 
   getSingleNote = async (req: Request, res: Response): Promise<void> => {
     try {
-      const clientToken = req.headers["clientToken"];
+      const clientToken = req.headers['header']
+      console.log(clientToken)
 
       if (!clientToken) {
         console.log("error: 'Client Token is required'")
@@ -85,33 +86,35 @@ export default class NotesController {
       const redisToken = await redisClient.get("token");
 
       if (clientToken != redisToken) {
-        console.log("error: 'unauthenticated'")
         res.status(401).json({error: 'unauthenticated'})
         return;
       }
 
       const { id } = req.params
       
-      const cachedNote = await redisClient.get(id);
+      const cachedNote = await redisClient.get(`note:${id}`);
       
       if (cachedNote) {
         console.log("in cache")
         res.json(cachedNote)
+        return
       }
 
+      console.log('getting note from DB')
       const noteFromDB = await NotesModel.findById(id)
 
-      // await redisClient.set(`note:${id}`, JSON.stringify(noteFromDB), "EX", 600);
+      if (!noteFromDB) {
+        res.status(404).json('Not found')
+        return;
+      }
 
-      const note: Note = await getNotesById(id)
+      console.log('putting note in cache')
+      await redisClient.set(`note:${id}`, JSON.stringify(noteFromDB));
 
-      const { title, body } = note
+      //with expiration option:
+      // await redisClient.set(`note:${id}`, JSON.stringify(noteFromDB), { EX: 600 });
 
-      
-
-      
-
-      res.json(note);
+      res.json(noteFromDB);
     } catch (error) {
       console.log(error);
       res.sendStatus(400);
