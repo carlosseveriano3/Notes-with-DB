@@ -6,6 +6,27 @@ export default class RabbitmqController {
     return await connection.createChannel();
   }
 
+  consumeCreateNoteRB = async () => {
+    const channel = await this.rabbitmqClient()
+
+    await channel.assertExchange('notes', 'direct', {durable: false});
+    await channel.assertQueue('create-note', {durable: false});
+        
+    channel.bindQueue('create-note', 'notes', 'create-note-bq');
+
+    return channel
+  }
+
+  publishReturningNotes = async (message: string) => {
+    const channel = await this.rabbitmqClient()
+
+    await channel.assertExchange('notes', 'direct', {durable: false});
+    channel.publish('notes', 'returning-notes', Buffer.from(message));
+    console.log('message sent');
+
+    return channel
+  }
+
   send = async (message: any) => {
     const connection = await client.connect("amqp://localhost:5672");
     const channel = await connection.createChannel();

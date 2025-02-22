@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { createNote } from '../db/notes'
+import { createNote, getNotesById } from '../db/notes'
 import { redisClient } from '../redisClient'
-import RabbitmqController from '../rabbitMQ'
+import RabbitmqController from '../rabbitmqController'
 import { ConsumeMessage } from 'amqplib'
 
 const rabbitmqController = new RabbitmqController
@@ -12,43 +12,38 @@ type Note = {
   body: string
 }
 export default class NotesController {
-  async createNote (/*req: Request, res: Response*/) {
+  createNote = async (/*req: Request, res: Response*/) => {
     try {
-      const channel = await rabbitmqController.rabbitmqClient()
+      const channelCreateNote = await rabbitmqController.consumeCreateNoteRB()
       console.log("rabbitmq connected")
-
-      await channel.assertExchange('notes', 'direct', {durable: false});
-      await channel.assertQueue('create-note', {durable: false});
     
-      channel.bindQueue('create-note', 'notes', 'create-note-bq');
-    
-      channel.consume('create-note', async (message: ConsumeMessage | null) => {
+      channelCreateNote.consume('create-note', async (message: ConsumeMessage | null) => {
         if (message) {
           let receivedNote: Note
           try {
             receivedNote = JSON.parse(message.content.toString());
-            channel.ack(message);
+            channelCreateNote.ack(message);
           } catch (error) {
             console.log(`Something went wrong ${error}`)
-            channel.ack(message)
+            channelCreateNote.ack(message)
             return
           }
 
-          console.log(receivedNote)
+          console.log(receivedNote);
 
-          const { header, title, body } = receivedNote
+          const { header, title, body } = receivedNote;
           
           if (!header) {
             console.log("error: 'Header is required'")
             //res.status(401).json({error: 'Header is required'});
-            return;
+            return
           }
 
           await redisClient.connect();
 
           const token = await redisClient.get("token");
 
-          console.log({token})
+          console.log({token});
 
           if (header != token) {
             console.log("error: 'unauthenticated'")
@@ -59,7 +54,9 @@ export default class NotesController {
           const note = await createNote({
             title,
             body
-          })
+          });
+
+          await rabbitmqController.publishReturningNotes(JSON.stringify(note));
 
           // res.status(200).json(note);
         }
@@ -70,12 +67,16 @@ export default class NotesController {
     }
   };
 
-  async getNote (req: Request, res: Response) {
+  getSingleNote = async (req: Request, res: Response): Promise<void> => {
     try {
-      
+      const { id } = req.params
+
+      const note = await getNotesById(id)
+
+      res.json(note)
     } catch (error) {
       console.log(error);
-      return res.sendStatus(400);
+      res.sendStatus(400);
     }
   }
 }
