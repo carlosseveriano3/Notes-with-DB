@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createNote, getNotesById } from '../db/notes'
+import { createNote, getNotesById, NotesModel } from '../db/notes'
 import { redisClient } from '../redisClient'
 import RabbitmqController from '../rabbitmqController'
 import { ConsumeMessage } from 'amqplib'
@@ -7,7 +7,7 @@ import { ConsumeMessage } from 'amqplib'
 const rabbitmqController = new RabbitmqController
 
 type Note = {
-  header: string
+  token: string
   title: string
   body: string
 }
@@ -31,27 +31,30 @@ export default class NotesController {
 
           console.log(receivedNote);
 
-          const { header, title, body } = receivedNote;
+          const { token, title, body } = receivedNote;
           
-          if (!header) {
-            console.log("error: 'Header is required'")
+          if (!token) {
+            console.log("error: 'Token is required'")
             //res.status(401).json({error: 'Header is required'});
             return
           }
 
           await redisClient.connect();
 
-          const token = await redisClient.get("token");
+          const redisToken = await redisClient.get("token");
 
-          console.log({token});
+          console.log({redisToken});
 
-          if (header != token) {
+          if (token != redisToken) {
             console.log("error: 'unauthenticated'")
             //res.status(401).json({error: 'unauthenticated'})
             return;
           }
 
+          console.log("criando a nota no Mongo")
+
           const note = await createNote({
+            token,
             title,
             body
           });
@@ -69,11 +72,46 @@ export default class NotesController {
 
   getSingleNote = async (req: Request, res: Response): Promise<void> => {
     try {
+      const clientToken = req.headers["clientToken"];
+
+      if (!clientToken) {
+        console.log("error: 'Client Token is required'")
+        res.status(401).json({error: 'Client Token is required'});
+        return
+      }
+
+      await redisClient.connect();
+
+      const redisToken = await redisClient.get("token");
+
+      if (clientToken != redisToken) {
+        console.log("error: 'unauthenticated'")
+        res.status(401).json({error: 'unauthenticated'})
+        return;
+      }
+
       const { id } = req.params
+      
+      const cachedNote = await redisClient.get(id);
+      
+      if (cachedNote) {
+        console.log("in cache")
+        res.json(cachedNote)
+      }
 
-      const note = await getNotesById(id)
+      const noteFromDB = await NotesModel.findById(id)
 
-      res.json(note)
+      // await redisClient.set(`note:${id}`, JSON.stringify(noteFromDB), "EX", 600);
+
+      const note: Note = await getNotesById(id)
+
+      const { title, body } = note
+
+      
+
+      
+
+      res.json(note);
     } catch (error) {
       console.log(error);
       res.sendStatus(400);

@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 
 const NoteSchema = new mongoose.Schema({
-  title: { type: String, require: true },
-  body: { type: String, require: true }
+  token: { type: String, required: true },
+  title: { type: String, required: true },
+  body: { type: String, required: true }
 })
 
 export const NotesModel = mongoose.model('Note', NoteSchema);
