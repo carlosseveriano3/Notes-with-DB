@@ -29,11 +29,11 @@ const server = http.createServer(app);
 
 app.use('/', router);
 
-async function run() {
+async function creatingNote() {
   await notesController.createNote();
 }
 
-run();
+creatingNote();
 
 server.listen(8080, () => {
   console.log('Server running on http://localhost:8080/');

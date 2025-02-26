@@ -11,8 +11,9 @@ type Note = {
   title: string
   body: string
 }
+
 export default class NotesController {
-  createNote = async (/*req: Request, res: Response*/) => {
+  createNote = async () => {
     try {
       const channelCreateNote = await rabbitmqController.consumeCreateNoteRB()
       console.log("rabbitmq connected")
@@ -96,7 +97,8 @@ export default class NotesController {
       
       if (cachedNote) {
         console.log("in cache")
-        res.json(cachedNote)
+        const parsedCache = JSON.parse(cachedNote)
+        res.json(parsedCache)
         return
       }
 

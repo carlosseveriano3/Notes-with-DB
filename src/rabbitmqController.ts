@@ -21,7 +21,9 @@ export default class RabbitmqController {
     const channel = await this.rabbitmqClient()
 
     await channel.assertExchange('notes', 'direct', {durable: false});
-    channel.publish('notes', 'returning-notes', Buffer.from(message));
+    await channel.assertQueue('returning-note', {durable: false});
+    channel.bindQueue('returning-note', 'notes', 'returning-note-bq');
+    channel.publish('notes', 'returning-note-bq', Buffer.from(message));
     console.log('message sent');
 
     return channel
