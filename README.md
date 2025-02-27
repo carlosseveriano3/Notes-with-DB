@@ -1,7 +1,5 @@
 <h1>cached-notes</h1> <br>
 
-The application consists in creating and receiving notes from RabbitMQ, caching, and being able to retrieve it afterwards through a HTTP request.
-
 This project was made with the purpose of learning new technologies such as: 
 
  - create a NoSQL database with MongoDb;
