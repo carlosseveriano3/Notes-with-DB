@@ -4,7 +4,7 @@ The application consists of creating and receiving notes from RabbitMQ, storing 
 
 This project was made with the purpose of learning new technologies such as: 
 
- - create a NoSQL database with MongoDb;
+ - use a NoSQL database with MongoDb;
  - run processes in isolated containers with Docker;
  - implement cache and authentication with Redis;
  - make a queue system with RabbitMQ, to simulate the information exchange between services;
